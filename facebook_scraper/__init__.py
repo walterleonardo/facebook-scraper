@@ -27,6 +27,7 @@ def get_posts(
         timeout (int): Timeout for requests.
         page_limit (int): How many pages of posts to go through.
             Use None to try to get all of them.
+        comments (bool): Enable or disable the comments capture for each post, by default False
         extra_info (bool): Set to True to try to get reactions.
         youtube_dl (bool): Use Youtube-DL for video extraction.
 
@@ -45,6 +46,10 @@ def get_posts(
     # TODO: Deprecate `pages` in favor of `page_limit` since it is less confusing
     if 'pages' in kwargs:
         kwargs['page_limit'] = kwargs.pop('pages')
+
+    # TODO: Include or not comments
+    if 'comments' in kwargs:
+        kwargs['comments'] = kwargs.pop('comments')
 
     # TODO: Deprecate `extra_info` in favor of `options`
     extra_info = kwargs.pop('extra_info', False)

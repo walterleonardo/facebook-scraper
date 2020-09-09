@@ -43,3 +43,8 @@ def make_html_element(html: str, url=DEFAULT_URL) -> Element:
 
 def html2text(html: str) -> str:
     return _html2text(html)
+
+
+
+def request_comments() -> str:
+    return "textCommentExample"

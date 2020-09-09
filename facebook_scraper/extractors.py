@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 
 from . import utils
 from .constants import FB_BASE_URL, FB_MOBILE_BASE_URL
-from .fb_types import RawPost, Options, Post, RequestFunction
+from .fb_types import RawPost, Options, Comments, Post, RequestFunction
 
 try:
     from youtube_dl import YoutubeDL
@@ -23,8 +23,8 @@ logger = logging.getLogger(__name__)
 PartialPost = Optional[Dict[str, Any]]
 
 
-def extract_post(raw_post: RawPost, options: Options, request_fn: RequestFunction) -> Post:
-    return PostExtractor(raw_post, options, request_fn).extract_post()
+def extract_post(raw_post: RawPost, options: Options, comments: Comments, request_fn: RequestFunction) -> Post:
+    return PostExtractor(raw_post, options, comments, request_fn).extract_post()
 
 
 def extract_group_post(raw_post: RawPost, options: Options, request_fn: RequestFunction) -> Post:
@@ -58,11 +58,11 @@ class PostExtractor:
     more_url_regex = re.compile(r'(?<=…\s)<a href="([^"]+)')
     post_story_regex = re.compile(r'href="(\/story[^"]+)" aria')
 
-    def __init__(self, element, options, request_fn):
+    def __init__(self, element, options, comments, request_fn):
         self.element = element
         self.options = options
+        self.comments = comments
         self.request = request_fn
-
         self._data_ft = None
 
     def make_new_post(self) -> Post:
@@ -77,6 +77,7 @@ class PostExtractor:
             'video_thumbnail': None,
             'likes': None,
             'comments': None,
+            'comments_text': None,
             'shares': None,
             'post_url': None,
             'link': None,
@@ -92,6 +93,7 @@ class PostExtractor:
             self.extract_image,
             self.extract_likes,
             self.extract_comments,
+            self.extract_comments_text,
             self.extract_shares,
             self.extract_post_url,
             self.extract_link,
@@ -267,6 +269,13 @@ class PostExtractor:
             )
             or 0,
         }
+
+    def extract_comments_text(self) -> PartialPost:
+        return {
+            'comments_text': utils.request_comments() or "No Comments",
+        }
+
+
 
     def extract_shares(self) -> PartialPost:
         return {
