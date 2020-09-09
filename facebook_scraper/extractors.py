@@ -10,6 +10,8 @@ from . import utils
 from .constants import FB_BASE_URL, FB_MOBILE_BASE_URL
 from .fb_types import RawPost, Options, Comments, Post, RequestFunction
 
+import requests
+
 try:
     from youtube_dl import YoutubeDL
     from youtube_dl.utils import ExtractorError
@@ -48,7 +50,6 @@ class PostExtractor:
     video_thumbnail_regex = re.compile(r"background: url\('(.+)'\)")
     post_url_regex = re.compile(r'/story.php\?story_fbid=')
     video_post_url_regex = re.compile(r'https://www.facebook.com/.+/videos/.+/(.+)/.+')
-
     shares_and_reactions_regex = re.compile(
         r'<script nonce=.*>.*bigPipe.onPageletArrive\((?P<data>\{.*RelayPrefetchedStreamCache.*\})\);'
         '.*</script>'
@@ -271,10 +272,22 @@ class PostExtractor:
         }
 
     def extract_comments_text(self) -> PartialPost:
-        return {
-            'comments_text': utils.request_comments() or "No Comments",
-        }
+        if self.comments == True:
+            comments_text = ''
+            
+            url = self.post.get('post_url')
+            post_id = self.post.get('post_id')
+            example = self.extract_comments_text_fn()
+            for target_list in utils.request_comments(url, post_id):
+                comments_text += target_list + ", "
 
+            return {
+                'comments_text': comments_text or "No Comments",
+            }
+        else:
+            return {
+                'comments_text': "Comments disabled",
+            }
 
 
     def extract_shares(self) -> PartialPost:
@@ -414,6 +427,54 @@ class PostExtractor:
 
         return self._data_ft
 
+
+    def extract_comments_text_fn(self) -> list:
+        # Open this article individually because not all content is fully loaded when skimming
+        # through pages.
+        # This ensures the full content can be read.
+        print("RUN CONTEXT TEXT")
+        url = "https://m.facebook.com/story.php?story_fbid=3406271012790661&id=119240841493711"
+        response = self.requests(url)
+        element = response.html.find('ufi_3406271012790661', first=True)
+
+        print(element)
+        print("#################")
+        # nodes = element.find('p, header')
+        # if nodes:
+        #     post_text = []
+        #     shared_text = []
+        #     ended = False
+        #     for node in nodes[1:]:
+        #         if node.tag == 'header':
+        #             ended = True
+
+        #         # Remove '... More'
+        #         # This button is meant to display the hidden text that is already loaded
+        #         # Not to be confused with the 'More' that opens the article in a new page
+        #         if node.tag == 'p':
+        #             node = utils.make_html_element(
+        #                 html=node.html.replace('>… <', '><', 1).replace('>More<', '', 1)
+        #             )
+
+        #         if not ended:
+        #             post_text.append(node.text)
+        #         else:
+        #             shared_text.append(node.text)
+
+        #     # Separation between paragraphs
+        #     paragraph_separator = '\n\n'
+
+        #     text = paragraph_separator.join(itertools.chain(post_text, shared_text))
+        #     post_text = paragraph_separator.join(post_text)
+        #     shared_text = paragraph_separator.join(shared_text)
+
+        #     return {
+        #         'text': text,
+        #         'post_text': post_text,
+        #         'shared_text': shared_text,
+        #     }
+
+        return list()
 
 class GroupPostExtractor(PostExtractor):
     """Class for extracting posts from Facebook Groups rather than Pages"""
