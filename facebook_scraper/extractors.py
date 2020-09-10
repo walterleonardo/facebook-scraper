@@ -437,14 +437,14 @@ class PostExtractor:
         print("#################")
         #https://m.facebook.com/Nintendo/
         #https://m.facebook.com/story.php?story_fbid=3192084834238224&id=1&anchor_composer=false
-        url = "http://m.facebook.com/story.php?story_fbid=3192084834238224&id=1&anchor_composer=false"
+        #https://m.facebook.com/story.php?story_fbid=3412324112185351&id=119240841493711&__tn__=%2AW-R
+        url = "http://m.facebook.com/story.php?story_fbid={}&id=1&anchor_composer=false".format(post_id)
         response = urllib.request.urlopen(url).read().decode()
         soup = BeautifulSoup(response, 'html.parser')
         tags = soup.find_all('div',attrs={"class":"em"})
-        print(tags)
         comment_list = list()
-        comment_list.append("Comment 1")
-        comment_list.append("Comment 2")
+        comment_list.append("Comment 1 example")
+        comment_list.append("Comment 2 example")
         for tag in tags:
             comment_list.append(tag.get_text())
         #print(response)
