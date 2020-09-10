@@ -81,7 +81,7 @@ for more details on CLI usage
 - Async support
 - Image galleries
 - Profiles or post authors
-- Comments
+- Comments (Need to be login to see comments) include Options credentials=['username','password']
 
 
 ## Alternatives and related projects

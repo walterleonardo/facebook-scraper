@@ -439,8 +439,6 @@ class PostExtractor:
         #https://m.facebook.com/story.php?story_fbid=3192084834238224&id=1&anchor_composer=false
         url = "http://m.facebook.com/story.php?story_fbid=3192084834238224&id=1&anchor_composer=false"
         response = urllib.request.urlopen(url).read().decode()
-        # element = response.html.find('ufi_3406271012790661', first=True)
-        print(response)
         soup = BeautifulSoup(response, 'lxml')
         tags = soup.findAll('div',attrs={"class":"ej cm"})
         print(tags)
