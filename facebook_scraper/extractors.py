@@ -439,18 +439,15 @@ class PostExtractor:
         #https://m.facebook.com/story.php?story_fbid=3192084834238224&id=1&anchor_composer=false
         url = "http://m.facebook.com/story.php?story_fbid=3192084834238224&id=1&anchor_composer=false"
         response = urllib.request.urlopen(url).read().decode()
-        soup = BeautifulSoup(response, 'lxml')
-        tags = soup.findAll('div',attrs={"class":"ej cm"})
+        soup = BeautifulSoup(response, 'html.parser')
+        tags = soup.find_all('div',attrs={"class":"em"})
         print(tags)
-        for tag in tags:
-            print(soup.findAll('div',attrs={"class":"._45kb"}))
-        #print(response)
-        print("#################")
-        
         comment_list = list()
         comment_list.append("Comment 1")
         comment_list.append("Comment 2")
-        
+        for tag in tags:
+            comment_list.append(tag.get_text())
+        #print(response)
         return comment_list
 
 class GroupPostExtractor(PostExtractor):
