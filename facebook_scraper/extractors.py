@@ -18,6 +18,8 @@ try:
 except ImportError:
     YoutubeDL = None
 
+import urllib.request
+from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
@@ -277,8 +279,7 @@ class PostExtractor:
             
             url = self.post.get('post_url')
             post_id = self.post.get('post_id')
-            example = self.extract_comments_text_fn()
-            for target_list in utils.request_comments(url, post_id):
+            for target_list in self.extract_comments_text_fn(url, post_id):
                 comments_text += target_list + ", "
 
             return {
@@ -428,53 +429,31 @@ class PostExtractor:
         return self._data_ft
 
 
-    def extract_comments_text_fn(self) -> list:
+    def extract_comments_text_fn(self, post_url: str, post_id: str) -> list:
         # Open this article individually because not all content is fully loaded when skimming
         # through pages.
         # This ensures the full content can be read.
         print("RUN CONTEXT TEXT")
-        url = "https://m.facebook.com/story.php?story_fbid=3406271012790661&id=119240841493711"
-        response = self.requests(url)
-        element = response.html.find('ufi_3406271012790661', first=True)
-
-        print(element)
         print("#################")
-        # nodes = element.find('p, header')
-        # if nodes:
-        #     post_text = []
-        #     shared_text = []
-        #     ended = False
-        #     for node in nodes[1:]:
-        #         if node.tag == 'header':
-        #             ended = True
-
-        #         # Remove '... More'
-        #         # This button is meant to display the hidden text that is already loaded
-        #         # Not to be confused with the 'More' that opens the article in a new page
-        #         if node.tag == 'p':
-        #             node = utils.make_html_element(
-        #                 html=node.html.replace('>… <', '><', 1).replace('>More<', '', 1)
-        #             )
-
-        #         if not ended:
-        #             post_text.append(node.text)
-        #         else:
-        #             shared_text.append(node.text)
-
-        #     # Separation between paragraphs
-        #     paragraph_separator = '\n\n'
-
-        #     text = paragraph_separator.join(itertools.chain(post_text, shared_text))
-        #     post_text = paragraph_separator.join(post_text)
-        #     shared_text = paragraph_separator.join(shared_text)
-
-        #     return {
-        #         'text': text,
-        #         'post_text': post_text,
-        #         'shared_text': shared_text,
-        #     }
-
-        return list()
+        #https://m.facebook.com/Nintendo/
+        #https://m.facebook.com/story.php?story_fbid=3192084834238224&id=1&anchor_composer=false
+        url = "http://m.facebook.com/story.php?story_fbid=3192084834238224&id=1&anchor_composer=false"
+        response = urllib.request.urlopen(url).read().decode()
+        # element = response.html.find('ufi_3406271012790661', first=True)
+        print(response)
+        soup = BeautifulSoup(response, 'lxml')
+        tags = soup.findAll('div',attrs={"class":"ej cm"})
+        print(tags)
+        for tag in tags:
+            print(soup.findAll('div',attrs={"class":"._45kb"}))
+        #print(response)
+        print("#################")
+        
+        comment_list = list()
+        comment_list.append("Comment 1")
+        comment_list.append("Comment 2")
+        
+        return comment_list
 
 class GroupPostExtractor(PostExtractor):
     """Class for extracting posts from Facebook Groups rather than Pages"""

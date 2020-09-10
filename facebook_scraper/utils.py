@@ -44,17 +44,3 @@ def make_html_element(html: str, url=DEFAULT_URL) -> Element:
 def html2text(html: str) -> str:
     return _html2text(html)
 
-
-
-def request_comments(post_url: str, post_id: str) -> list:
-    if post_url is None:
-        print("Dont Has URL")
-    else:
-        print(post_id)
-        print(post_url)
-    #https://m.facebook.com/story.php?story_fbid=3406271012790661&id=119240841493711
-    comment_list = list()
-    comment_list.append("Comment 1")
-    comment_list.append("Comment 2")
-    
-    return comment_list
