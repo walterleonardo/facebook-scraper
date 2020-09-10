@@ -71,7 +71,7 @@ class FacebookScraper:
         response_text = response.html.find('#viewport', first=True).text
 
         logger.debug("Login response text: %s", response_text)
-        print("Login response text: %s", response_text)
+
         login_error = response.html.find('#login_error', first=True)
         if login_error:
             logger.error("Login error: %s", login_error.text)
