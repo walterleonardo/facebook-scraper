@@ -279,11 +279,9 @@ class PostExtractor:
             
             url = self.post.get('post_url')
             post_id = self.post.get('post_id')
-            for target_list in self.extract_comments_text_fn(url, post_id):
-                comments_text += target_list + ", "
-
+            response = self.extract_comments_text_fn(url, post_id)
             return {
-                'comments_text': comments_text or "No Comments",
+                'comments_text': response or "No Comments",
             }
         else:
             return {
@@ -433,23 +431,35 @@ class PostExtractor:
         # Open this article individually because not all content is fully loaded when skimming
         # through pages.
         # This ensures the full content can be read.
-        print("RUN CONTEXT TEXT")
-        print("#################")
         #https://m.facebook.com/Nintendo/
         #https://m.facebook.com/story.php?story_fbid=3192084834238224&id=1&anchor_composer=false
         #https://m.facebook.com/story.php?story_fbid=3412324112185351&id=119240841493711&__tn__=%2AW-R
         url = "http://m.facebook.com/story.php?story_fbid={}&id=1&anchor_composer=false".format(post_id)
         response = urllib.request.urlopen(url).read().decode()
         soup = BeautifulSoup(response, 'html.parser')
-        tags = soup.find_all('div',attrs={"class":"em"})
-        comment_list = list()
-        comment_list.append("Comment 1 example")
-        comment_list.append("Comment 2 example")
-        for tag in tags:
-            comment_list.append(tag.get_text())
-        #print(response)
-        return comment_list
+        tags = soup.find_all('div', attr= {'data-uniqueid'})
 
+        response = list()
+        username = 'test';
+        date = 'test';
+        comment = 'test';
+        comments = {  
+            "username": username,
+            "comment": comment,
+            "date": date
+            }
+        # response.append(comments)
+        # response.append(comments)
+        for tag in tags:
+            username = tag.find('a').text;
+            date = tag.find('abbr').text;
+            comment = tag.find_all('div', attr= {'data-uniqueid'}).text;
+            comments['username'] = username
+            comments['comment'] = comment
+            comments['date'] = date
+            response.append(comments)
+        return response
+               
 class GroupPostExtractor(PostExtractor):
     """Class for extracting posts from Facebook Groups rather than Pages"""
 
