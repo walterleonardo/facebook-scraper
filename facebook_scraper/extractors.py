@@ -438,7 +438,7 @@ class PostExtractor:
         response = urllib.request.urlopen(url).read().decode()
         soup = BeautifulSoup(response, 'html.parser')
         tags = soup.find_all('div', attr= {'data-uniqueid'})
-
+        print(tags)
         response = list()
         username = 'test';
         date = 'test';
@@ -453,7 +453,7 @@ class PostExtractor:
         for tag in tags:
             username = tag.find('a').text;
             date = tag.find('abbr').text;
-            comment = tag.find_all('div', attr= {'data-uniqueid'}).text;
+            comment = tag.find_all('div', attr= {'data-commentid'}).text;
             comments['username'] = username
             comments['comment'] = comment
             comments['date'] = date
